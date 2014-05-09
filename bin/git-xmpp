@@ -1,0 +1,81 @@
+#!/usr/bin/env node
+
+'use strict';
+
+// dependencies
+var express = require('express'),
+    debug = require('debug')('api'),
+    bodyParser = require('body-parser'),
+    Githook = require('git-hook'),
+    XmppMuc = require('../lib/xmppmuc'),
+    debug = require('debug')('gitxmpp:server');
+
+// local variables
+
+var app = express();
+var gh = new Githook();
+
+// read environment
+var options = {
+    jid: process.env.XMPP_USERNAME,
+    password: process.env.XMPP_PASSWORD,
+    host: process.env.XMPP_HOST,
+    port: process.env.XMPP_PORT,
+    room: process.env.XMPP_ROOM
+};
+
+debug(JSON.stringify(options));
+
+var muc = new XmppMuc(options);
+
+// initialize event listener
+gh.on('push', function (eventdata) {
+    muc.handleEvent(eventdata);
+});
+
+gh.on('pull_request', function (eventdata) {
+    muc.handleEvent(eventdata);
+});
+
+app.use(bodyParser.json({
+    limit: '1mb'
+}));
+
+app.post('/github', function (req, res) {
+    debug('github event');
+    gh.handleroute('github', req.headers, req.body, function (err) {
+        if (err) {
+            res.send(400, 'Event not supported');
+        } else {
+            res.end();
+        }
+    });
+});
+
+app.post('/gitlab', function (req, res) {
+    debug('gitlab event');
+    gh.handleroute('gitlab', req.headers, req.body, function (err) {
+        if (err) {
+            res.send(400, 'Event not supported');
+        } else {
+            res.end();
+        }
+    });
+});
+
+app.post('/bitbucket', function (req, res) {
+    debug('bitbucket event');
+    gh.handleroute('bitbucket', req.headers, req.body, function (err) {
+        if (err) {
+            res.send(400, 'Event not supported');
+        } else {
+            res.end();
+        }
+    });
+});
+
+app.set('port', (process.env.PORT || 3000));
+
+app.listen(app.get('port'), function () {
+    console.log('Node app is running at: ' + app.get('port'));
+});
