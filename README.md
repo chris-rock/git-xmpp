@@ -1,4 +1,4 @@
-# git-events-xmpp
+# git-xmpp
 
 Pushes updates from Github, Bitbucket and Gitlab to your xmpp chat room.
 

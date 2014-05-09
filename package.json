@@ -1,6 +1,6 @@
 {
     "name": "git-xmpp",
-    "description": "pushes information about git commits on a xmpp room",
+    "description": "pushes information about git commits to a xmpp room",
     "version": "0.1.0",
     "author": {
         "name": "Christoph Hartmann",
@@ -11,10 +11,10 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": ""
+        "url": "git@github.com:chris-rock/git-xmpp.git"
     },
     "bugs": {
-        "url": ""
+        "url": "https://github.com/chris-rock/git-xmpp/issues"
     },
     "scripts": {
         "test": "grunt test --verbose"
