@@ -6,14 +6,11 @@
 var express = require('express'),
     debug = require('debug')('api'),
     bodyParser = require('body-parser'),
-    Githook = require('git-hook'),
-    XmppMuc = require('../lib/xmppmuc'),
+    HookRoutes = require('../lib/hookroutes'),
     debug = require('debug')('gitxmpp:server');
 
 // local variables
-
 var app = express();
-var gh = new Githook();
 
 // read environment
 var options = {
@@ -26,53 +23,13 @@ var options = {
 
 debug(JSON.stringify(options));
 
-var muc = new XmppMuc(options);
-
-// initialize event listener
-gh.on('push', function (eventdata) {
-    muc.handleEvent(eventdata);
-});
-
-gh.on('pull_request', function (eventdata) {
-    muc.handleEvent(eventdata);
-});
-
 app.use(bodyParser.json({
     limit: '1mb'
 }));
 
-app.post('/github', function (req, res) {
-    debug('github event');
-    gh.handleroute('github', req.headers, req.body, function (err) {
-        if (err) {
-            res.send(400, 'Event not supported');
-        } else {
-            res.end();
-        }
-    });
-});
-
-app.post('/gitlab', function (req, res) {
-    debug('gitlab event');
-    gh.handleroute('gitlab', req.headers, req.body, function (err) {
-        if (err) {
-            res.send(400, 'Event not supported');
-        } else {
-            res.end();
-        }
-    });
-});
-
-app.post('/bitbucket', function (req, res) {
-    debug('bitbucket event');
-    gh.handleroute('bitbucket', req.headers, req.body, function (err) {
-        if (err) {
-            res.send(400, 'Event not supported');
-        } else {
-            res.end();
-        }
-    });
-});
+// load routes
+var hRoutes = new HookRoutes(options);
+app.use('/', hRoutes.routes());
 
 app.set('port', (process.env.PORT || 3000));
 
